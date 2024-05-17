@@ -1,0 +1,419 @@
+<meta charset="UTF-8">
+<body bgcolor = "#000000">
+<script src="sweetalert2.all.min.js"></script>
+<script type="text/javascript">
+let com = [1,1,1,1,1];
+
+let v;
+
+let win = 0;
+let lose = 0;
+
+let level;
+
+let card = 5;
+const cardDefault = [5,7,10];
+
+async function cardChoice(){
+
+
+
+let result = await Swal.fire({
+    title: 'どのカードを出す？',
+    html:"相手："+levelName[level]+"<br>"+comCardShow(),
+    input: 'radio',
+    inputOptions: setInput(),
+    confirmButtonText: "カードを出す！？",
+    allowOutsideClick: false
+  })
+
+    if (result.value !== null) {
+        let yourData = result.value;
+        let comData = comSelect(yourData);
+        await winOrLose(yourData,comData)
+    } else {
+        await Swal.fire({
+            title: "お互い相手の出方を探っている！",
+            html: "あなたはカードを出さなかった！<br>しかし、相手もカードを出そうとはしない！",
+            allowOutsideClick: false
+        })
+        cardChoice();
+
+    }
+  
+}
+
+async function winOrLose(e,f){
+
+    let myNum = Number(e);
+
+    await Swal.fire({
+        title: myNum+" vs "+f,
+        html: "あなたは"+myNum+"のカード！<br>相手は"+f+"のカードを出した！",
+        allowOutsideClick: false
+    })
+
+    let m;
+
+    if(myNum > f){
+    m = "勝ち！";
+    win++;
+    }else if(myNum < f){
+    m = "負け！";
+    lose++;
+    }else{
+    m = "引き分け！";
+    }
+
+    await Swal.fire({
+        title: m,
+        html: "ここまで"+win+"勝"+lose+"敗！",
+        allowOutsideClick: false
+    })
+
+    me[myNum-1] = 0;
+    com[f-1] = 0;
+
+    if(me.every(e => e === 0)){
+
+        let end;
+
+        if(win>lose){
+
+            end = "あなたの勝ち！"
+
+        }else if(win<lose){
+
+            end = "あなたの負け！"
+
+        }else{
+
+            end = "DRAW GAME!"
+
+        }
+
+        await Swal.fire({
+            title: end,
+            html: ""+win+"勝"+lose+"敗で終わり！",
+            allowOutsideClick: false
+        })
+        
+        let retry = await Swal.fire({
+            title: 'リトライしますか？',
+            showCancelButton: true,
+            cancelButtonText: "END",
+            confirmButtonText: "CONTINUE",
+            allowOutsideClick: false
+          })
+
+          if (retry.isConfirmed) {
+            await start();
+            }          
+
+    }else{
+        cardChoice();
+    }
+
+}
+
+function comSelect(e){
+
+    let a;
+
+    if(level == 2){
+       a = comSelectNormal(a)
+
+    }else if(level == 1){
+
+       a = comSelectEasy(a,e)
+
+    }else if(level == 3){
+
+       a = comSelectHard(a,e)
+
+    }else if(level == 4){
+
+       a = comSelectEsper(a,e)
+
+    }
+    
+    a += 1;
+
+    return a;
+
+}
+
+function comSelectEasy(a,e){
+
+let manDt = e-1; 
+
+    while(true){
+
+        if(Math.random() < 4/7){
+
+            if(Math.random() < 1/2){
+            let b = 1;
+            a = manDt - b;
+            }else{
+            let b = card - (Math.floor(Math.random() * 1)+1);
+            a = manDt + b
+            }
+
+        }else{
+
+            for(let i = 0; i < 5; i++){
+                a = comSelectNormal(a)
+
+                if(a - manDt == 1){
+                }else if(manDt - a >= card - 2){
+                }else{
+                    break;
+                }
+
+            }
+        }
+
+        if(com[a] === 1 && a >= 0 && a < card ){
+    
+            break;
+    
+        }
+        }
+
+        return a;
+
+}
+function comSelectEsper(a,e){
+
+let manDt = e-1; 
+
+    while(true){
+
+        if(Math.random() < 5/7){
+
+            if(Math.random() < 1/2){
+            let b = 1;
+            a = manDt + b;
+            }else{
+            let b = card - (Math.floor(Math.random() * 1)+1);
+            a = manDt - b
+            }
+
+        }else{
+
+            for(let i = 0; i < 5; i++){
+                a = comSelectNormal(a)
+
+                if(manDt - a == 1){
+                }else if(a - manDt >= card - 2){
+                }else{
+                    break;
+                }
+
+            }
+        }
+
+        if(com[a] === 1 && a >= 0 && a < card ){
+    
+            break;
+    
+        }
+        }
+
+        return a;
+
+}
+function comSelectHard(a,e){
+
+let manDt = e-1; 
+
+    while(true){
+
+        if(Math.random() < 5/14){
+
+            let b = Math.floor(Math.random() * 2)+1;
+            a = manDt + b;
+            
+        }else{
+
+            for(let i = 0; i < 5; i++){
+                a = comSelectNormal(a)
+
+            }
+        }
+
+        if(com[a] === 1 && a >= 0 && a < card ){
+    
+            break;
+    
+        }
+        }
+
+        return a;
+
+}
+
+function comSelectNormal(a){
+
+let x = [];
+
+    for(let i = 0; i < card; i++){
+
+        if(com[i] == 1){
+
+            x.push(i);
+
+        }
+
+    }
+
+        a = Math.floor(Math.random() * x.length);
+        a = x[a];
+
+        return a;
+
+}
+
+function setInput(){
+
+    let a = {};
+
+for(let i = 0; i < card; i++){
+
+if(me[i] === 1){
+
+    a[String(i+1)] = (i+1);
+
+}
+
+}
+
+return a;
+
+}
+
+function comCardShow(){
+
+let a = "";
+
+if(v){
+
+for(let i = 0; i < card; i++){
+
+    if(com[i] == 1){
+
+        a+= (i+1)+", ";
+
+    }
+
+}
+
+    let b = "相手が持っているのは、"+a.slice(0, -2)+"です！"
+    return b;
+
+}else{
+
+    return a
+
+}
+
+
+
+}
+
+async function start(){
+
+
+
+    win = 0;
+    lose = 0;
+
+let result = await Swal.fire({
+        title: 'せんそう',
+        showDenyButton: true,
+        input: 'radio',
+        html:"選択しないで始めると、5枚でスタートします！",
+        inputOptions:{
+            1: "5枚",
+            2: "7枚",
+            3: "10枚"
+        },
+        denyButtonText: "相手カード表示",
+        confirmButtonText: "相手カード非表示",
+        allowOutsideClick: false,
+        returnInputValueOnDeny: true
+      });
+      
+      await gameSet(result);
+     
+      let result2 = await Swal.fire({
+        title: '相手のLEVELをえらんでね',
+        input: 'radio',
+        html:"選択しないで始めると、"+levelName[2]+"でスタートします！",
+        inputOptions:{
+            1: levelName[1],
+            2: levelName[2],
+            3: levelName[3],
+            4: levelName[4]
+        },
+        confirmButtonText: "スタート",
+        allowOutsideClick: false,
+      });
+
+      await gameSet2(result2);
+
+      await cardChoice();
+     
+
+}
+
+async function gameSet(result){
+
+    if (result.isConfirmed) {
+        v = false;
+        }else{
+        v = true;
+        }
+
+        card = cardDefault[(result.value)-1];
+
+    if(card > 1){
+        
+    }else{
+        card = cardDefault[0];
+        
+
+    }
+  
+        me = [];
+        com = [];
+  
+        for(let i = 0; i < card; i++){
+  
+          me[i] = 1;
+          com[i] = 1;
+          
+        
+  
+      }
+
+      
+
+}
+
+async function gameSet2(result2){
+
+    level = result2.value;
+
+    if(level === null){
+    
+        level = 2;
+    
+    }      
+
+}
+
+const levelName = ["","不幸","ふつう","ラッキー","エスパー"];
+start();
+</script>
+</body>
