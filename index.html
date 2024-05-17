@@ -13,7 +13,7 @@ let lose = 0;
 let level;
 
 let card = 5;
-const cardDefault = [3,4,5,7,8];
+const cardDefault = [5,6,7];
 
 async function cardChoice(){
 
@@ -335,11 +335,9 @@ let result = await Swal.fire({
         input: 'radio',
         html:"選択しないで始めると、5枚でスタートします！",
         inputOptions:{
-            1: "3枚",
-            2: "4枚",
-            3: "5枚",
-            4: "7枚",
-            5: "8枚"
+            1: "5枚",
+            2: "6枚",
+            3: "7枚"
         },
         denyButtonText: "相手カード表示",
         confirmButtonText: "相手カード非表示",
@@ -383,7 +381,7 @@ async function gameSet(result){
     if(card > 1){
         
     }else{
-        card = cardDefault[2];
+        card = cardDefault[0];
         
 
     }
